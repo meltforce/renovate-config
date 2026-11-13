@@ -1,7 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Shared Renovate preset for the GitHub-canonical meltforce repos (topic claude-pipeline). Consumed via extends: ['github>meltforce/renovate-config']. Updates arrive as PRs and merge through GitHub auto-merge once the repo's required checks pass; the Claude review passes a renovate[bot] PR that touches only dependency files (the repo's REVIEW.md). Forgejo-canonical repos use homelab's default.json instead.",
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended"
+  ],
   "timezone": "Europe/Berlin",
   "constraints": {
     "node": "^26",
@@ -10,64 +12,119 @@
   "automerge": true,
   "automergeType": "pr",
   "platformAutomerge": true,
+  "automergeStrategy": "squash",
   "fetchChangeLogs": "pr",
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "Renovate Dashboard (approve majors by checkbox)",
+  "dependencyDashboard": {
+    "enabled": true,
+    "title": "Renovate Dashboard (approve majors by checkbox)"
+  },
   "packageRules": [
     {
       "description": "Majors need the checkbox in the dependency dashboard; a ticked one opens a PR that goes through the same checks and auto-merge.",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "dependencyDashboardApproval": true
     },
     {
       "description": "All npm dependencies of a repo share one package-lock.json; separate branches each rewrite it and then conflict. One PR for every non-major npm update.",
-      "matchManagers": ["npm"],
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "groupName": "npm non-major"
     },
     {
       "description": "Peer ranges couple the Vite toolchain majors (vitest wants a matching vite, @vitejs/plugin-react and vite-plugin-pwa build against the same vite major, jsdom is vitest's DOM environment), and they share the lockfile.",
-      "matchManagers": ["npm"],
-      "matchUpdateTypes": ["major"],
-      "matchPackageNames": ["vite", "@vitejs/**", "vitest", "@vitest/**", "vite-plugin-pwa", "jsdom"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "matchPackageNames": [
+        "vite",
+        "@vitejs/**",
+        "vitest",
+        "@vitest/**",
+        "vite-plugin-pwa",
+        "jsdom"
+      ],
       "groupName": "vite toolchain"
     },
     {
       "description": "eslint and its plugins declare each other in peer ranges; a lone eslint major fails npm ci.",
-      "matchManagers": ["npm"],
-      "matchUpdateTypes": ["major"],
-      "matchPackageNames": ["eslint", "eslint-plugin-**", "@typescript-eslint/**", "typescript-eslint"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "matchPackageNames": [
+        "eslint",
+        "eslint-plugin-**",
+        "@typescript-eslint/**",
+        "typescript-eslint"
+      ],
       "groupName": "eslint"
     },
     {
       "description": "react-i18next declares a peer range on i18next.",
-      "matchManagers": ["npm"],
-      "matchUpdateTypes": ["major"],
-      "matchPackageNames": ["i18next", "i18next-**", "react-i18next"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "matchPackageNames": [
+        "i18next",
+        "i18next-**",
+        "react-i18next"
+      ],
       "groupName": "i18next"
     },
     {
       "description": "The go directive names the release actions/setup-go installs (go-version-file: go.mod), so govulncheck checks that standard library. go-mod-directive versioning reads `go 1.27.2` as `^1.27.2`, which every 1.x satisfies, so without `bump` the line never moves.",
-      "matchManagers": ["gomod"],
-      "matchDepTypes": ["golang"],
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepTypes": [
+        "golang"
+      ],
       "rangeStrategy": "bump"
     },
     {
       "description": "A Go minor moves the go directive and the builder image `golang:1.N-alpine` together; a directive ahead of the builder image fails the build. Checkbox, one branch. Patches merge automatically.",
-      "matchUpdateTypes": ["minor"],
-      "matchPackageNames": ["go", "golang"],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "matchPackageNames": [
+        "go",
+        "golang"
+      ],
       "groupName": "go minor",
       "dependencyDashboardApproval": true
     },
     {
       "description": "The Node release in a Dockerfile (`node:26.x.y-…`) and in CI (`node-version` of actions/setup-node) carry one version; one PR raises both.",
-      "matchDepNames": ["node"],
+      "matchDepNames": [
+        "node"
+      ],
       "groupName": "node"
     },
     {
       "description": "A Python minor changes the interpreter under every dependency; it needs the checkbox like a major.",
-      "matchDepNames": ["python"],
-      "matchUpdateTypes": ["minor"],
+      "matchDepNames": [
+        "python"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "dependencyDashboardApproval": true
     }
   ]
